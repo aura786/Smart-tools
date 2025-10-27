@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SmartTools — All-in-One Calculators</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- AOS for simple animations -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+  <style>
+    body { transition: background-color .35s, color .35s; }
+    .hidden-section { display: none; }
+    .card { backface-visibility: hidden; }
+    /* small input number spin removal for nicer mobile */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-md">
+    <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="rounded-xl bg-white/10 p-2">
+          <span class="text-2xl">⚙️</span>
+        </div>
+        <div>
+          <h1 class="text-xl font-semibold">SmartTools</h1>
+          <p class="text-sm opacity-80">Fast calculators & converters — mobile & desktop ready</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button id="saveBtn" class="text-sm bg-white/10 hover:bg-white/20 px-3 py-1 rounded-md hidden sm:inline">Save</button>
+
+        <button id="themeToggle" class="flex items-center gap-2 bg-white text-blue-600 px-3 py-1 rounded-md font-medium shadow-sm">
+          <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-9H21M3 12H2m15.36-6.36l-.7.7M6.34 17.66l-.7.7m12.02 0l-.7-.7M6.34 6.34l-.7-.7"/>
+          </svg>
+          <span id="themeText">Dark</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="container mx-auto px-4 py-6 text-center" data-aos="fade-up">
+    <h2 class="text-2xl sm:text-3xl font-bold">All-in-One Calculators & Tools</h2>
+    <p class="text-gray-600 mt-2">BMI, Age (years/months/days/minutes), EMI, Units, and Live Currency Converter — all in one place.</p>
+  </section>
+
+  <!-- Tool Selector -->
+  <nav class="container mx-auto px-4 mb-6">
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <button class="tool-btn card bg-white p-3 rounded-xl shadow hover:scale-[1.02] transition" data-tool="bmi" aria-pressed="false">🧍‍♂️ BMI</button>
+      <button class="tool-btn card bg-white p-3 rounded-xl shadow hover:scale-[1.02] transition" data-tool="age" aria-pressed="false">🎂 Age</button>
+      <button class="tool-btn card bg-white p-3 rounded-xl shadow hover:scale-[1.02] transition" data-tool="currency" aria-pressed="false">💱 Currency</button>
+      <button class="tool-btn card bg-white p-3 rounded-xl shadow hover:scale-[1.02] transition" data-tool="emi" aria-pressed="false">💰 EMI</button>
+      <button class="tool-btn card bg-white p-3 rounded-xl shadow hover:scale-[1.02] transition" data-tool="unit" aria-pressed="false">⚖️ Units</button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 flex-grow">
+
+    <!-- Generic card container for tools -->
+    <div id="toolsContainer" class="space-y-6">
+
+      <!-- BMI -->
+      <section id="bmi" class="hidden-section bg-white p-6 rounded-2xl shadow card" data-aos="fade-right">
+        <h3 class="text-lg font-semibold mb-3">🧍‍♂️ BMI Calculator</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <input id="bmiWeight" type="number" min="1" placeholder="Weight (kg)" class="p-3 border rounded-md" />
+          <input id="bmiHeight" type="number" min="1" placeholder="Height (cm)" class="p-3 border rounded-md" />
+          <select id="bmiUnit" class="p-3 border rounded-md">
+            <option value="metric">Metric (kg, cm)</option>
+            <option value="imperial">Imperial (lb, in)</option>
+          </select>
+        </div>
+        <div class="mt-4 flex gap-3">
+          <button id="bmiCalc" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md shadow">Calculate</button>
+          <button id="bmiClear" class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md">Clear</button>
+        </div>
+        <div id="bmiResult" class="mt-4 p-3 bg-sky-50 rounded-md text-sm font-medium"></div>
+        <p class="text-xs text-gray-500 mt-2">BMI categories: &lt;18.5 Underweight · 18.5–24.9 Normal · 25–29.9 Overweight · ≥30 Obesity</p>
+      </section>
+
+      <!-- Age -->
+      <section id="age" class="hidden-section bg-white p-6 rounded-2xl shadow card" data-aos="fade-right">
+        <h3 class="text-lg font-semibold mb-3">🎂 Age Calculator</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+          <label class="flex flex-col">
+            <span class="text-sm text-gray-600">Date of Birth</span>
+            <input id="dob" type="date" class="p-3 border rounded-md" />
+          </label>
+          <label class="flex flex-col">
+            <span class="text-sm text-gray-600">Compare with (optional)</span>
+            <input id="compareDate" type="date" class="p-3 border rounded-md" />
+          </label>
+          <div>
+            <button id="ageCalc" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md shadow">Calculate</button>
+            <button id="ageClear" class="ml-2 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-md">Clear</button>
+          </div>
+        </div>
+
+        <div id="ageResult" class="mt-4 p-3 bg-sky-50 rounded-md text-sm font-medium"></div>
+        <p class="text-xs text-gray-500 mt-2">Shows exact difference in years, months, days and total minutes.</p>
+      </section>
+
+      <!-- Currency -->
+      <section id="currency" class="hidden-section bg-white p-6 rounded-2xl shadow card" data-aos="fade-right">
+        <h3 class="text-lg font-semibold mb-3">💱 Currency Converter (Live rates)</h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <input id="curAmount" type="number" min="0" step="any" placeholder="Amount" class="p-3 border rounded-md" />
+          <select id="curFrom" class="p-3 border rounded-md"></select>
+          <select id="curTo" class="p-3 border rounded-md"></select>
+          <div class="flex items-center gap-2">
+            <button id="curConvert" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md shadow">Convert</button>
+            <button id="swapCur" class="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-md">Swap</button>
+          </div>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div id="currencyResult" class="p-3 bg-sky-50 rounded-md text-sm font-medium min-h-[64px]"></div>
+          <div id="currencyMeta" class="p-3 bg-white border rounded-md text-xs text-gray-600">
+            <p><strong>Rate:</strong> <span id="curRate">—</span></p>
+            <p class="mt-1"><strong>Source:</strong> exchangerate</p>
+            <p class="mt-1"><strong>Last fetch:</strong> <span id="curTime">—</span></p>
+            <p class="mt-2 text-rose-600 hidden" id="curWarn"> check  current price on You  (Must have )</p>
+          </div>
+        </div>
+
+        <p class="text-xs text-gray-500 mt-2">If live API fails, the converter will use fallback offline rates for quick results.</p>
+      </section>
+
+      <!-- EMI -->
+      <section id="emi" class="hidden-section bg-white p-6 rounded-2xl shadow card" data-aos="fade-right">
+        <h3 class="text-lg font-semibold mb-3">💰 EMI Calculator</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <input id="emiLoan" type="number" min="0" step="any" placeholder="Loan Amount" class="p-3 border rounded-md" />
+          <input id="emiRate" type="number" min="0" step="any" placeholder="Annual Interest (%)" class="p-3 border rounded-md" />
+          <input id="emiTenure" type="number" min="1" step="1" placeholder="Tenure (months)" class="p-3 border rounded-md" />
+        </div>
+        <div class="mt-4 flex gap-3">
+          <button id="emiCalc" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md shadow">Calculate</button>
+          <button id="emiClear" class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md">Clear</button>
+        </div>
+        <div id="emiResult" class="mt-4 p-3 bg-sky-50 rounded-md text-sm font-medium"></div>
+      </section>
+
+      <!-- Unit -->
+      <section id="unit" class="hidden-section bg-white p-6 rounded-2xl shadow card" data-aos="fade-right">
+        <h3 class="text-lg font-semibold mb-3">⚖️ Unit Converter</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <input id="unitValue" type="number" step="any" placeholder="Value" class="p-3 border rounded-md" />
+          <select id="unitType" class="p-3 border rounded-md">
+            <optgroup label="Length">
+              <option value="m-km">Meters ➜ Kilometers</option>
+              <option value="km-m">Kilometers ➜ Meters</option>
+              <option value="cm-m">Centimeters ➜ Meters</option>
+              <option value="in-cm">Inches ➜ Centimeters</option>
+            </optgroup>
+            <optgroup label="Weight">
+              <option value="g-kg">Grams ➜ Kilograms</option>
+              <option value="kg-g">Kilograms ➜ Grams</option>
+              <option value="lb-kg">Pounds ➜ Kilograms</option>
+            </optgroup>
+            <optgroup label="Temp">
+              <option value="c-f">Celsius ➜ Fahrenheit</option>
+              <option value="f-c">Fahrenheit ➜ Celsius</option>
+            </optgroup>
+          </select>
+          <div class="flex items-center gap-2">
+            <button id="unitConvert" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md shadow">Convert</button>
+            <button id="unitClear" class="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-md">Clear</button>
+          </div>
+        </div>
+        <div id="unitResult" class="mt-4 p-3 bg-sky-50 rounded-md text-sm font-medium"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-8 bg-gray-900 text-white py-4">
+    <div class="container mx-auto px-4 text-center text-sm">
+      © <span id="year"></span> SmartTools · Built by Ayan · <span id="tz">&2007</span>
+    </div>
+  </footer>
+
+  <!-- JavaScript Logic -->
+  <script>
+    AOS.init({ once: true });
+
+    // --- Utility helpers ---
+    const $ = id => document.getElementById(id);
+    const formatNum = (n, decimals = 2) => {
+      if (!isFinite(n)) return '—';
+      return Number(n).toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    };
+
+    // --- Save year in footer ---
+    $('year').textContent = new Date().getFullYear();
+
+    // --- Theme & localStorage ---
+    const THEME_KEY = 'smarttools_theme';
+    const LAST_TOOL_KEY = 'smarttools_lasttool';
+
+    function setDark(dark) {
+      if (dark) {
+        document.body.classList.add('bg-gray-900', 'text-white');
+        document.body.classList.remove('bg-gray-50', 'text-gray-800');
+        $('themeText').textContent = 'Light';
+      } else {
+        document.body.classList.remove('bg-gray-900', 'text-white');
+        document.body.classList.add('bg-gray-60', 'text-gray-900');
+        $('themeText').textContent = 'Dark';
+      }
+      localStorage.setItem(THEME_KEY, dark ? 'dark' : 'light');
+    }
+
+    // Initialize theme from localStorage
+    const savedTheme = localStorage.getItem(THEME_KEY);
+    setDark(savedTheme === 'dark');
+
+    $('themeToggle').addEventListener('click', () => {
+      const isDark = document.body.classList.contains('bg-gray-900');
+      setDark(!isDark);
+    });
+
+    // --- Tool navigation & remember last used ---
+    const toolBtns = document.querySelectorAll('.tool-btn');
+    const sections = document.querySelectorAll('.hidden-section');
+
+    function showTool(id) {
+      sections.forEach(s => s.style.display = 'none');
+      const el = $(id);
+      if (el) {
+        el.style.display = 'block';
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        localStorage.setItem(LAST_TOOL_KEY, id);
+      }
+      toolBtns.forEach(b => b.setAttribute('aria-pressed', b.dataset.tool === id));
+    }
+
+    toolBtns.forEach(b => b.addEventListener('click', () => showTool(b.dataset.tool)));
+
+    // Show last used or default
+    const last = localStorage.getItem(LAST_TOOL_KEY) || 'bmi';
+    showTool(last);
+
+    // --- Input helpers: clear buttons ---
+    function clearInputs(parent, selectors = 'input, select') {
+      const container = (typeof parent === 'string') ? $(parent) : parent;
+      container.querySelectorAll(selectors).forEach(i => {
+        if (i.type === 'select-one') i.selectedIndex = 0;
+        else i.value = '';
+      });
+      // clear result areas
+      if (container.querySelector('[id$="Result"]')) {
+        container.querySelectorAll('[id$="Result"]').forEach(r => r.textContent = '');
+      }
+    }
+
+    // --- BMI ---
+    $('bmiCalc').addEventListener('click', () => {
+      const w = parseFloat($('bmiWeight').value);
+      const h = parseFloat($('bmiHeight').value);
+      const unit = $('bmiUnit').value;
+      if (!w || !h || w <= 0 || h <= 0) {
+        alert('Enter valid weight and height.');
+        return;
+      }
+
+      let bmi;
+      if (unit === 'metric') {
+        const heightM = h / 100;
+        bmi = w / (heightM * heightM);
+      } else {
+        // imperial: weight in lb, height in inches
+        bmi = (w / (h * h)) * 703;
+      }
+
+      let status = 'Normal';
+      if (bmi < 18.5) status = 'Underweight';
+      else if (bmi >= 25 && bmi < 30) status = 'Overweight';
+      else if (bmi >= 30) status = 'Obese';
+
+      $('bmiResult').innerHTML = `
+        BMI: <strong>${formatNum(bmi,1)}</strong> · <span class="italic">${status}</span>
+        <div class="mt-2 text-xs text-gray-600 ${document.body.classList.contains('bg-gray-900') ? 'text-gray-300' : ''}">
+          Tip: BMI is a guideline — consider muscle mass, age and health conditions.
+        </div>
+      `;
+    });
+
+    $('bmiClear').addEventListener('click', () => {
+      $('bmiWeight').value = '';
+      $('bmiHeight').value = '';
+      $('bmiResult').textContent = '';
+    });
+
+    // --- Age (years, months, days, minutes) ---
+    function preciseDiff(fromDate, toDate) {
+      // calculate year, month, day difference properly
+      if (toDate < fromDate) return null;
+      let y1 = fromDate.getFullYear(), m1 = fromDate.getMonth(), d1 = fromDate.getDate();
+      let y2 = toDate.getFullYear(), m2 = toDate.getMonth(), d2 = toDate.getDate();
+
+      let years = y2 - y1;
+      let months = m2 - m1;
+      let days = d2 - d1;
+
+      if (days < 0) {
+        // borrow days from previous month
+        const prevMonth = new Date(y2, m2, 0); // last day of previous month
+        days += prevMonth.getDate();
+        months -= 1;
+      }
+      if (months < 0) {
+        months += 12;
+        years -= 1;
+      }
+
+      // total minutes
+      const diffMs = toDate - fromDate;
+      const totalMinutes = Math.floor(diffMs / 60000);
+
+      // approximate total months
+      const approxMonths = years * 12 + months;
+
+      return { years, months, days, totalMinutes, approxMonths };
+    }
+
+    $('ageCalc').addEventListener('click', () => {
+      const dobVal = $('dob').value;
+      if (!dobVal) { alert('Please choose your date of birth.'); return; }
+      const compareVal = $('compareDate').value;
+      const fromDate = new Date(dobVal + 'T00:00:00');
+      const toDate = compareVal ? new Date(compareVal + 'T00:00:00') : new Date();
+
+      if (!(fromDate instanceof Date) || isNaN(fromDate)) { alert('Invalid DOB.'); return; }
+      if (toDate < fromDate) { alert('Compare date must be after DOB.'); return; }
+
+      const diff = preciseDiff(fromDate, toDate);
+      if (!diff) { alert('Invalid dates.'); return; }
+
+      $('ageResult').innerHTML = `
+        <div><strong>${diff.years}</strong> years, <strong>${diff.months}</strong> months, <strong>${diff.days}</strong> days</div>
+        <div class="mt-1 text-sm">≈ <strong>${diff.approxMonths}</strong> months total</div>
+        <div class="mt-1 text-sm">Total minutes lived: <strong>${formatNum(diff.totalMinutes,0)}</strong> minutes</div>
+      `;
+    });
+
+    $('ageClear').addEventListener('click', () => {
+      $('dob').value = '';
+      $('compareDate').value = '';
+      $('ageResult').textContent = '';
+    });
+
+    // --- Currency Converter (Live with fallback) ---
+    const currencyList = [
+      "USD","EUR","GBP","INR","JPY","AUD","CAD","CHF","CNY","SGD","NZD","SEK","MXN","RUB","ZAR","TRY","BRL","AED","HKD","BDT","PKR","ILS","KRW","NGN","IDR"
+    ];
+
+    // Fill selects
+    function populateCurrencies() {
+      const from = $('curFrom'), to = $('curTo');
+      from.innerHTML = '';
+      to.innerHTML = '';
+      currencyList.forEach(c => {
+        const o1 = document.createElement('option'); o1.value = c; o1.textContent = c;
+        const o2 = document.createElement('option'); o2.value = c; o2.textContent = c;
+        from.appendChild(o1); to.appendChild(o2);
+      });
+      from.value = 'USD'; to.value = 'INR';
+    }
+    populateCurrencies();
+
+    // Offline fallback rates (approx sample rates relative to USD) — used if API fails
+    const fallbackRates = {
+      base: 'USD',
+      rates: {
+        USD: 1, EUR: 0.92, GBP: 0.79, INR: 83.50, JPY: 156.40, AUD: 1.59, CAD: 1.35, CHF: 0.90,
+        CNY: 7.15, SGD: 1.37, NZD: 1.75, SEK: 10.4, MXN: 17.9, RUB: 94.5, ZAR: 19.3, TRY: 35.1,
+        BRL: 5.25, AED: 3.67, HKD: 7.82, BDT: 108.0, PKR: 281.0, ILS: 3.6, KRW: 1460, NGN: 1500, IDR: 15800
+      },
+      timestamp: Date.now()
+    };
+
+    let lastFetchedRates = null;
+    let lastFetchTime = null;
+
+    async function fetchRates(base='USD') {
+      try {
+        const resp = await fetch(`https://api.exchangerate.host/latest?base=${base}`);
+        if (!resp.ok) throw new Error('Network error');
+        const data = await resp.json();
+        if (!data || !data.rates) throw new Error('Invalid data');
+        lastFetchedRates = data;
+        lastFetchTime = new Date();
+        $('curWarn').classList.add('hidden');
+        return data;
+      } catch (e) {
+        // API failed — fallback
+        lastFetchedRates = fallbackRates;
+        lastFetchTime = new Date(parseInt(fallbackRates.timestamp) || Date.now());
+        $('curWarn').classList.remove('hidden');
+        return fallbackRates;
+      }
+    }
+
+    async function convertCurrency() {
+      const amount = parseFloat($('curAmount').value);
+      const from = $('curFrom').value;
+      const to = $('curTo').value;
+      if (!isFinite(amount)) { alert('Enter a valid amount'); return; }
+      if (from === to) {
+        $('currencyResult').innerHTML = `<div>${formatNum(amount,2)} ${from} = <strong>${formatNum(amount,2)} ${to}</strong></div>`;
+        $('curRate').textContent = `1 ${from} = 1 ${to}`;
+        $('curTime').textContent = new Date().toLocaleString();
+        return;
+      }
+
+      $('currencyResult').textContent = 'Fetching rate...';
+      const base = from;
+      const data = await fetchRates(base);
+
+      // If the API returned base different from requested (some APIs do), handle simple conversion
+      const rates = data.rates || {};
+      let rate;
+      if (rates[to]) {
+        rate = rates[to];
+      } else if (rates[from] && rates[to]) {
+        rate = rates[to] / rates[from];
+      } else {
+        // Try cross via USD
+        const usdRates = (data.base === 'USD') ? data.rates : (fallbackRates.rates);
+        if (usdRates && usdRates[to] && usdRates[from]) {
+          rate = usdRates[to] / usdRates[from];
+        } else {
+          alert('Unable to fetch conversion for selected currencies.');
+          $('currencyResult').textContent = '';
+          return;
+        }
+      }
+
+      const converted = amount * rate;
+      $('currencyResult').innerHTML = `
+        <div><strong>${formatNum(amount,2)} ${from}</strong> = <strong>${formatNum(converted,2)} ${to}</strong></div>
+      `;
+      $('curRate').textContent = `1 ${from} = ${formatNum(rate,6)} ${to}`;
+      $('curTime').textContent = lastFetchTime ? lastFetchTime.toLocaleString() : new Date().toLocaleString();
+    }
+
+    $('curConvert').addEventListener('click', convertCurrency);
+    $('swapCur').addEventListener('click', () => {
+      const a = $('curFrom').value; $('curFrom').value = $('curTo').value; $('curTo').value = a;
+      if ($('curAmount').value) convertCurrency();
+    });
+
+    // Pre-fetch rates on load to speed first conversion
+    fetchRates('USD').catch(()=>{ /* handled in fetchRates */ });
+
+    // --- EMI ---
+    $('emiCalc').addEventListener('click', () => {
+      const P = parseFloat($('emiLoan').value);
+      const annual = parseFloat($('emiRate').value);
+      const N = parseInt($('emiTenure').value, 10);
+
+      if (!P || P <= 0) { alert('Enter loan amount'); return; }
+      if (!N || N <= 0) { alert('Enter tenure in months'); return; }
+      if (!isFinite(annual) || annual < 0) { alert('Enter valid interest rate (0 or positive)'); return; }
+
+      if (annual === 0) {
+        // no interest
+        const emiNo = P / N;
+        $('emiResult').innerHTML = `<div>Monthly EMI: <strong>${formatNum(emiNo,2)}</strong></div>
+          <div class="mt-1 text-sm text-gray-600">Total Payment: <strong>${formatNum(emiNo*N,2)}</strong></div>`;
+        return;
+      }
+
+      const r = annual / 12 / 100;
+      const emi = (P * r * Math.pow(1 + r, N)) / (Math.pow(1 + r, N) - 1);
+      const total = emi * N;
+      const interest = total - P;
+
+      $('emiResult').innerHTML = `
+        <div>Monthly EMI: <strong>${formatNum(emi,2)}</strong></div>
+        <div class="mt-1 text-sm text-gray-600">Total Payment: <strong>${formatNum(total,2)}</strong> · Interest: <strong>${formatNum(interest,2)}</strong></div>
+      `;
+    });
+
+    $('emiClear').addEventListener('click', () => {
+      $('emiLoan').value = '';
+      $('emiRate').value = '';
+      $('emiTenure').value = '';
+      $('emiResult').textContent = '';
+    });
+
+    // --- Unit Converter ---
+    $('unitConvert').addEventListener('click', () => {
+      const val = parseFloat($('unitValue').value);
+      const type = $('unitType').value;
+      if (!isFinite(val)) { alert('Enter a valid value'); return; }
+
+      let res;
+      switch(type) {
+        case 'm-km': res = val / 1000 + ' km'; break;
+        case 'km-m': res = val * 1000 + ' m'; break;
+        case 'cm-m': res = val / 100 + ' m'; break;
+        case 'in-cm': res = val * 2.54 + ' cm'; break;
+        case 'g-kg': res = val / 1000 + ' kg'; break;
+        case 'kg-g': res = val * 1000 + ' g'; break;
+        case 'lb-kg': res = (val * 0.45359237).toFixed(4) + ' kg'; break;
+        case 'c-f': res = ((val * 9/5) + 32).toFixed(2) + ' °F'; break;
+        case 'f-c': res = (((val - 32) * 5/9)).toFixed(2) + ' °C'; break;
+        default: res = 'Conversion not available';
+      }
+      $('unitResult').textContent = res;
+    });
+
+    $('unitClear').addEventListener('click', () => {
+      $('unitValue').value = '';
+      $('unitResult').textContent = '';
+    });
+
+    // --- Simple accessibility: Enter key to run conversions where appropriate ---
+    ['bmiWeight','bmiHeight'].forEach(id => $$(id)?.addEventListener?.('keydown', e => { if (e.key === 'Enter') $('bmiCalc').click(); }));
+    function $$(id) { return document.getElementById(id); }
+
+    // Press Enter on amounts to convert
+    ['curAmount','curFrom','curTo'].forEach(id => {
+      const el = $(id);
+      if (!el) return;
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter') $('curConvert').click(); });
+    });
+
+    // --- Fix: prevent accidental huge numbers / format display nicely ---
+    // Keeping minimal for performance and clarity.
+
+    // --- Final small polish: focus first input when showing a tool ---
+    const firstInputs = {
+      bmi: 'bmiWeight',
+      age: 'dob',
+      currency: 'curAmount',
+      emi: 'emiLoan',
+      unit: 'unitValue'
+    };
+
+    // Observe changes to LAST_TOOL_KEY to set focus
+    const observerTimeout = 180;
+    const originalShowTool = showTool;
+    function showToolWithFocus(id) {
+      originalShowTool(id);
+      setTimeout(() => { const first = firstInputs[id]; if (first && $(first)) { $(first).focus(); } }, observerTimeout);
+    }
+
+    // Override buttons to use new showToolWithFocus
+    toolBtns.forEach(b => b.removeEventListener('click', () => {}));
+    toolBtns.forEach(b => b.addEventListener('click', () => showToolWithFocus(b.dataset.tool)));
+    // Ensure last tool still shows with focus
+    showToolWithFocus(last);
+
+    // --- Safety & notes: if any error in conversion, show friendly message ---
+    window.addEventListener('error', (e) => {
+      console.error('Unhandled error:', e.error || e.message);
+    });
+
+    // Done.
+  </script>
+</body>
+</html>
